@@ -4,41 +4,84 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
-    public function cadastro_usuario_html(Request $request){
+    public function cadastro_usuario_html()
+    {
         return view('cadastro_usuario');
     }
 
-    public function cadastro_usuario(Request $request){
-
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'email' => 'required',
-            'senha' => 'required|string|min:6',
-            'cpf' => 'required|string|max:11',
-            'data_nascimento' => 'required',
-        ]);
-
-        $usuario = new Usuario();
-
-        if($usuario->where('email', "=", $request->email)->exists()){
-            return response()->json(['erro' => 's','mensagem' => 'Email já cadastrado'], 200);
-        }
-
+    public function cadastro_usuario(Request $request)
+    {
         try {
+
+            $usuario = new Usuario();
+
             $usuario->nome = $request->nome;
             $usuario->email = $request->email;
-            $usuario->senha = md5($request->senha);
-            $usuario->cpf = $request->cpf;
+            $usuario->senha = Hash::make($request->senha);
             $usuario->data_nascimento = $request->data_nascimento;
+            $usuario->cpf = $request->cpf;
+
             $usuario->save();
 
-            return response()->json(['erro' => 'n','mensagem' => 'Usuário cadastrado com sucesso'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['erro' => 's','mensagem' => 'Erro ao cadastrar usuário: ' . $e->getMessage()], 200);
-        }
+            return response()->json([
+                "erro" => "n",
+                "mensagem" => "Cadastro realizado com sucesso!"
+            ]);
 
+        } catch (\Exception $e) {
+
+            return response()->json([
+                "erro" => "s",
+                "mensagem" => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function login_novo(Request $request)
+    {
+        try {
+
+            $usuario = Usuario::where(
+                "email",
+                $request->email
+            )->first();
+
+            if (!$usuario) {
+
+                return response()->json([
+                    "erro" => "s",
+                    "message" => "E-mail ou senha incorretos."
+                ], 401);
+            }
+
+            if (!Hash::check($request->senha, $usuario->senha)) {
+
+                return response()->json([
+                    "erro" => "s",
+                    "message" => "E-mail ou senha incorretos."
+                ], 401);
+            }
+
+            return response()->json([
+                "erro" => "n",
+                "message" => "Login realizado com sucesso!",
+                "usuario" => [
+                    "id" => $usuario->id,
+                    "nome" => $usuario->nome,
+                    "email" => $usuario->email
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                "erro" => "s",
+                "message" => $e->getMessage()
+            ], 500);
+        }
     }
 }

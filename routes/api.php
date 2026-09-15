@@ -11,4 +11,6 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login_api']);
 
+Route::post('/login_novo', [UsuarioController::class, 'login_novo']);
+
 Route::post('/cadastro_usuario', [UsuarioController::class, 'cadastro_usuario']);
