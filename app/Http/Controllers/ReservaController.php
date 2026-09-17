@@ -42,4 +42,33 @@ class ReservaController extends Controller
             ], 500);
         }
     }
+
+    public function cancelarReserva($id)
+    {
+        try {
+
+            $reserva = Reserva::find($id);
+
+            if (!$reserva) {
+                return response()->json([
+                    "erro" => "s",
+                    "mensagem" => "Reserva não encontrada."
+                ], 404);
+            }
+
+            $reserva->delete();
+
+            return response()->json([
+                "erro" => "n",
+                "mensagem" => "Reserva cancelada com sucesso!"
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                "erro" => "s",
+                "mensagem" => $e->getMessage()
+            ], 500);
+        }
+    }
 }

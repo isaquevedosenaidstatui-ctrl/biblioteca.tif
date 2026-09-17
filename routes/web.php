@@ -20,3 +20,5 @@ Route::get('/cadastro_reserva', function () {
 Route::post('/cadastro_reserva', [ReservaController::class, 'cadastrar']);
 
 Route::get('/inicio', [ReservaController::class, 'inicio']);
+
+Route::delete('/cancelar_reserva/{id}', [ReservaController::class, 'cancelarReserva']);
